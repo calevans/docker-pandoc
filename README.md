@@ -19,7 +19,7 @@ This project will take a Markdown formatted book project and create :
 To build this container, I use the following in this repo's root.
 
 ```
-$ docker build --force-rm -squash --tag calevans/buildbook ./
+$ docker build --force-rm --squash --tag calevans/buildbook ./
 ```
 
 # Requirements
