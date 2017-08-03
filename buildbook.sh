@@ -4,7 +4,7 @@
 #
 echo " "
 echo "buildBook.sh"
-echo "Version 1.0.3"
+echo "Version 1.1.0"
 echo "By: Cal Evans <cal@calevans.com>"
 echo "License: MIT"
 echo "URL: https://blog.calevans.com"
