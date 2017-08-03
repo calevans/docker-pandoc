@@ -1,4 +1,4 @@
-FROM haskell:8
+FROM haskell:latest
 MAINTAINER Cal Evans <cal@calevans.com>
 
 # Set to Non-Interactive
@@ -6,9 +6,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install EVERYTHING
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends apt-utils && \ 
-    apt-get install --yes --no-install-recommends \
-            apt-transport-https \
+    apt-get install --yes --no-install-recommends apt-utils && \
+    apt-get install --yes --no-install-recommends apt-transport-https \
             biber \
             ca-certificates \
             dos2unix \
@@ -45,23 +44,21 @@ RUN apt-get update && \
             php7.1-xml && \
     apt-get --yes autoclean && \
     apt-get --purge --yes autoremove && \
-    cabal update && \
-    cabal install \
-    pandoc \
-    pandoc-citeproc \
-    pandoc-citeproc-preamble \
-    pandoc-crossref && \
+    git clone https://github.com/jgm/pandoc /opt/pandoc && \
+    cd /opt/pandoc && \
+    stack setup && \
+    stack install --test && \
     wget -q -O /tmp/kindlegen.tar.gz https://kindlegen.s3.amazonaws.com/kindlegen_linux_2.6_i386_v2_9.tar.gz && \
     cd /tmp && \
     tar -zxvf kindlegen.tar.gz && \
     mv /tmp/kindlegen /usr/local/bin && \
     cd /tmp && \
-    wget -q http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz && \
-    xz -d wkhtmltox-0.12.3_linux-generic-amd64.tar.xz && \
-    tar -xf wkhtmltox-0.12.3_linux-generic-amd64.tar && \
-    mv wkhtmltox/bin/* /usr/local/bin/ && \
-    cd /tmp && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
+    wget -q https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -O /tmp/wkhtmltox.tar.xz && \
+    xz -d wkhtmltox.tar.xz  && \
+    tar -xf wkhtmltox.tar  && \
+    mv wkhtmltox/bin/* /usr/local/bin/  && \
+    cd /tmp  && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
 # Move BuildBook into place.
