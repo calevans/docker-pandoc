@@ -4,9 +4,12 @@
 #
 echo " "
 echo "buildBook.sh"
+echo "Version 1.0.3"
 echo "By: Cal Evans <cal@calevans.com>"
 echo "License: MIT"
 echo "URL: https://blog.calevans.com"
+echo " "
+echo " "
 
 #
 # Setup
@@ -26,6 +29,8 @@ CONFIGDIR=$ROOTDIR/config
 COPYRIGHTPAGE=""
 TOCSWITCH=""
 METADATASWITCH=""
+BOOKTITLE=""
+TOCDEPTH=3
 
 #
 # BEGIN PROCESSING
@@ -59,8 +64,11 @@ then
     php -r 'echo yaml_emit(yaml_parse_file("'$ROOTDIR/book.yaml'")["book"]);' > $WORKDIR/book.yaml
     php -r 'foreach (yaml_parse_file("'$ROOTDIR/book.yaml'")["manuscript"] as $key=>$value) {echo $value."\n";}' > $WORKDIR/book.txt   
     php -r 'foreach (yaml_parse_file("'$ROOTDIR/book.yaml'")["variables"] as $key=>$value) {echo $key."=".$value."\n";}' > $WORKDIR/book.sh
+    BOOKTITLE=$(php -r 'echo yaml_parse_file("'$ROOTDIR/book.yaml'")["book"]["title"];')
+
     source $WORKDIR/book.sh
-    METADATASWITCH="$WORKDIR/book.yaml"
+
+    METADATASWITCH="--epub-metadata=$WORKDIR/book.yaml"
 else
     echo " "
     echo "Error:"
@@ -83,6 +91,9 @@ dos2unix -q  $ROOTDIR/manuscript/*.md
 #
 # Concatenate the book into on big MarkDown file.
 #
+cat $WORKDIR/book.yaml > $WORKDIR/$FINALNAMEROOT.md
+echo " " >> $WORKDIR/$FINALNAMEROOT.md
+
 for FILENAME in $(cat $WORKDIR/book.txt)
 do
     cat $MANUSCRIPTDIR/$FILENAME >> $WORKDIR/$FINALNAMEROOT.md
@@ -127,29 +138,35 @@ if [ ! $? -eq 0 ]
     exit 3
 fi
 
-
 # Convert the MarkDown body file into HTML
-pandoc -o $WORKDIR/body.html  -t html $WORKDIR/$FINALNAMEROOT.md
+pandoc --from=markdown+smart -o $WORKDIR/body.html -t html $WORKDIR/$FINALNAMEROOT.md
 if [ ! $? -eq 0 ]
     then
     exit 4
 fi
+
 # Make the Table of Contents for the PDF
-pandoc -o $WORKDIR/toc.html $TOCSWITCH --standalone --toc -t html $WORKDIR/body.html
+# pandoc -o $WORKDIR/toc.html $TOCSWITCH --standalone --toc -t html $WORKDIR/body.html
+
+pandoc -o $WORKDIR/toc.html $TOCSWITCH --variable=pagetitle:empty --toc-depth=$TOCDEPTH --toc -t html $WORKDIR/body.html
 if [ ! $? -eq 0 ]
     then
     exit 5
 fi
+
 # Build the standalone HTML that is the basis for the PDF
+# Allow for a ToC depth in the yaml file and use it here. 3 is the default for pandoc.
 pandoc -o $WORKDIR/$FINALNAMEROOT.html  \
        -H /data/manuscript/css/style.css \
        --standalone \
+       --variable=pagetitle:"$BOOKTITLE" \
        -t html \
        $WORKDIR/cover.html $COPYRIGHTPAGE $WORKDIR/toc.html $WORKDIR/body.html
 if [ ! $? -eq 0 ]
     then
     exit 6
 fi
+
 
 # Make the PDF from the HTML
 wkhtmltopdf --quiet $WORKDIR/$FINALNAMEROOT.html $WORKDIR/$FINALNAMEROOT.pdf
@@ -158,17 +175,18 @@ if [ ! $? -eq 0 ]
     exit 7
 fi 
 # Make a cover image for the EPUB based on the cover.html we just generated
-wkhtmltoimage --quality 100 --encoding UTF-8 $WORKDIR/cover.html $WORKDIR/$FINALNAMEROOT.jpg
+wkhtmltoimage --height 1600 --width 1000 --quality 100 --encoding UTF-8 $WORKDIR/cover.html $WORKDIR/$FINALNAMEROOT.jpg
 if [ ! $? -eq 0 ]
     then
     exit 8
 fi
 
 # Make the EPUB
-pandoc -S -o $WORKDIR/$FINALNAMEROOT.epub \
+pandoc --from=markdown+smart -o $WORKDIR/$FINALNAMEROOT.epub \
        --epub-cover-image=$WORKDIR/$FINALNAMEROOT.jpg \
-       --to=epub3 \
-       $METADATASWITCH $COPYRIGHTPAGE $WORKDIR/$FINALNAMEROOT.md
+       $COPYRIGHTPAGE $WORKDIR/$FINALNAMEROOT.md
+
+
 if [ ! $? -eq 0 ]
     then
     exit 9
@@ -204,6 +222,6 @@ cp $WORKDIR/$FINALNAMEROOT.mobi $OUTPUTDIR
 # useless if you are running the Docker container directly on a book.
 # On the other hand, it doesn't hurt anything.
 #
-#rm -rf $WORKDIR/*  
+rm -rf $WORKDIR/*  
 
 exit 0
