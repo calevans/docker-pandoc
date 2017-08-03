@@ -56,19 +56,19 @@ book:
   rights: © 2017 E.I.C.C., Inc. All Rights Reserved
   language: en_US.UTF-8
 manuscript:
-  - foreword.md
-  - intro.md
-  - learn.md
-  - humility.md
-  - be_a_better_person.md
-  - be_a_better_developer.md
-  - create_something.md
-  - help_someone.md
-  - greatness.md
-  - leadership.md
-  - inspire.md
-  - conclusion.md
-  - 99.md  
+- foreword.md
+- intro.md
+- learn.md
+- humility.md
+- be_a_better_person.md
+- be_a_better_developer.md
+- create_something.md
+- help_someone.md
+- greatness.md
+- leadership.md
+- inspire.md
+- conclusion.md
+- 99.md  
 ...
 ```
 The `variables` section is a simple list of KEY=VALUE pairs. It is dumped into the file `/tmp/book.txt` and then sourced by the script. At this point, the variables are available to the running script.
