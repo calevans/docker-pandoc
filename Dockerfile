@@ -61,9 +61,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #
-# Move BuildBook into place.
+# Move BuildBook into place and set permissions
 #
 COPY ./buildbook.sh /usr/local/bin
+
+RUN chmod 777 /usr/local/bin/buildbook.sh
 
 # Export the output data
 WORKDIR /data
