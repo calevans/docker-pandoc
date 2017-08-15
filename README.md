@@ -98,7 +98,7 @@ When the container is properly executed, it will run `./buildbook.sh`. This is t
 
 ## Linux/macOS
 ```
-$ docker run --rm -v `$PWD`:/data buildbook
+$ docker run --rm -v $PWD:/data buildbook
 ```
 
 ## Windows
