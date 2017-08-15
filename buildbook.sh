@@ -4,7 +4,7 @@
 #
 echo " "
 echo "buildBook.sh"
-echo "Version 1.1.0"
+echo "Version 1.1.1"
 echo "By: Cal Evans <cal@calevans.com>"
 echo "License: MIT"
 echo "URL: https://blog.calevans.com"
@@ -113,8 +113,8 @@ if [ -e "$TEMPLATESDIR/copyright.html" ]
 then
     COMMAND1='s/<!--VERSION-->/'$VERSION'/'
     COMMAND2='s,<!--DATEPUBLISHED-->,'$(date +%D)','
-    sed -e $COMMAND1 < $TEMPLATESDIR/copyright.html | sed -e $COMMAND2 > $MANUSCRIPTDIR/copyright.md
-    COPYRIGHTPAGE="$MANUSCRIPTDIR/copyright.md"
+    sed -e $COMMAND1 < $TEMPLATESDIR/copyright.html | sed -e $COMMAND2 > $WORKDIR/copyright.md
+    COPYRIGHTPAGE="$WORKDIR/copyright.md"
 fi
 
 
