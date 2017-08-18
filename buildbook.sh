@@ -4,10 +4,10 @@
 #
 echo " "
 echo "buildBook.sh"
-echo "Version 1.1.1"
-echo "By: Cal Evans <cal@calevans.com>"
-echo "License: MIT"
-echo "URL: https://blog.calevans.com"
+echo "Version : 1.2.0"
+echo "Author  : Cal Evans <cal@calevans.com>"
+echo "License : MIT"
+echo "URL     : https://blog.calevans.com"
 echo " "
 echo " "
 
@@ -62,7 +62,7 @@ if [ -f $ROOTDIR/book.yaml ]
 then
     dos2unix -q  $ROOTDIR/book.yaml 
     php -r 'echo yaml_emit(yaml_parse_file("'$ROOTDIR/book.yaml'")["book"]);' > $WORKDIR/book.yaml
-    php -r 'foreach (yaml_parse_file("'$ROOTDIR/book.yaml'")["manuscript"] as $key=>$value) {echo $value."\n";}' > $WORKDIR/book.txt   
+    php -r 'foreach (yaml_parse_file("'$ROOTDIR/book.yaml'")["manuscript"] as $key=>$value) {echo trim($value)."\n";}' > $WORKDIR/book.txt   
     php -r 'foreach (yaml_parse_file("'$ROOTDIR/book.yaml'")["variables"] as $key=>$value) {echo $key."=".$value."\n";}' > $WORKDIR/book.sh
     BOOKTITLE=$(php -r 'echo yaml_parse_file("'$ROOTDIR/book.yaml'")["book"]["title"];')
 
@@ -77,8 +77,9 @@ else
     exit 2
 fi
 
-echo "Filename Root :"$FINALNAMEROOT
-echo "Version :" $VERSION
+echo "Processing    : "$BOOKTITLE
+echo "Version       : "$VERSION
+echo "Filename Root : "$FINALNAMEROOT
 echo " ";
 
 #
@@ -117,6 +118,16 @@ then
     COPYRIGHTPAGE="$WORKDIR/copyright.md"
 fi
 
+#
+# Generate the title page in the working directory from a template
+#
+if [ -e "$TEMPLATESDIR/title.md" ]
+then
+    COMMAND1='s/<!--COVERGRAPHIC-->/'$COVERGRAPHIC'/'
+    sed -e $COMMAND1 < $TEMPLATESDIR/title.md | sed -e $COMMAND2 > $WORKDIR/title.md
+    COVERPAGE="$WORKDIR/title.md"
+fi
+
 
 #
 # If we have a custom template for the table of contents, set the switch to 
@@ -131,8 +142,8 @@ fi
 #
 # Run the conversions
 #
-# Make the HTML Cover
-pandoc -o $WORKDIR/cover.html -t html $MANUSCRIPTDIR/title.md
+# Make the HTML Title page
+pandoc -o $WORKDIR/title.html -t html $WORKDIR/title.md
 if [ ! $? -eq 0 ]
     then
     exit 3
@@ -146,8 +157,6 @@ if [ ! $? -eq 0 ]
 fi
 
 # Make the Table of Contents for the PDF
-# pandoc -o $WORKDIR/toc.html $TOCSWITCH --standalone --toc -t html $WORKDIR/body.html
-
 pandoc -o $WORKDIR/toc.html $TOCSWITCH --variable=pagetitle:empty --toc-depth=$TOCDEPTH --toc -t html $WORKDIR/body.html
 if [ ! $? -eq 0 ]
     then
@@ -161,7 +170,7 @@ pandoc -o $WORKDIR/$FINALNAMEROOT.html  \
        --standalone \
        --variable=pagetitle:"$BOOKTITLE" \
        -t html \
-       $WORKDIR/cover.html $COPYRIGHTPAGE $WORKDIR/toc.html $WORKDIR/body.html
+       $WORKDIR/title.html $COPYRIGHTPAGE $WORKDIR/toc.html $WORKDIR/body.html
 if [ ! $? -eq 0 ]
     then
     exit 6
@@ -174,8 +183,9 @@ if [ ! $? -eq 0 ]
     then
     exit 7
 fi 
+
 # Make a cover image for the EPUB based on the cover.html we just generated
-wkhtmltoimage --height 1600 --width 1000 --quality 100 --encoding UTF-8 $WORKDIR/cover.html $WORKDIR/$FINALNAMEROOT.jpg
+wkhtmltoimage --height 1600 --width 1000 --quality 100 --encoding UTF-8 $WORKDIR/title.html $WORKDIR/$FINALNAMEROOT.jpg
 if [ ! $? -eq 0 ]
     then
     exit 8
@@ -222,6 +232,6 @@ cp $WORKDIR/$FINALNAMEROOT.mobi $OUTPUTDIR
 # useless if you are running the Docker container directly on a book.
 # On the other hand, it doesn't hurt anything.
 #
-rm -rf $WORKDIR/*  
+#rm -rf $WORKDIR/*  
 
 exit 0
