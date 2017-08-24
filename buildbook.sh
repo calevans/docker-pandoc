@@ -1,10 +1,10 @@
-#!/bin/bash
+f#!/bin/bash
 #
 # Notify the user we are doing something
 #
 echo " "
 echo "buildBook.sh"
-echo "Version 1.2.1"
+echo "Version 1.2.3"
 echo "By: Cal Evans <cal@calevans.com>"
 echo "License: MIT"
 echo "URL: https://blog.calevans.com"
@@ -121,11 +121,11 @@ fi
 #
 # Generate the cover in the working directory from a template
 #
-if [ -e "$TEMPLATESDIR/title.md" ]
+if [ -e "$TEMPLATESDIR/cover.md" ]
 then
     COMMAND1='s/<!--COVERGRAPHIC-->/'$COVERGRAPHIC'/'
-    sed -e $COMMAND1 < $TEMPLATESDIR/cover.md | sed -e $COMMAND2 > $WORKDIR/title.md
-    COVERPAGE="$WORKDIR/title.md"
+    sed -e $COMMAND1 < $TEMPLATESDIR/cover.md | sed -e $COMMAND2 > $WORKDIR/cover.md
+    COVERPAGE="$WORKDIR/cover.md"
 fi
 
 
@@ -133,9 +133,9 @@ fi
 # If we have a custom template for the table of contents, set the switch to 
 # use it. Otherwise, the default template will be used.
 #
-if [ -e "$TEMPLATESDIR/toc.html" ]
+if [ -e "$TEMPLATESDIR/toc.md" ]
 then
-    TOCSWITCH="--template=$TEMPLATESDIR/toc.html"
+    TOCSWITCH="--template=$TEMPLATESDIR/toc.md"
 fi
 
 
@@ -143,7 +143,7 @@ fi
 # Run the conversions
 #
 # Make the HTML Cover
-pandoc -o $WORKDIR/cover.html -t html $WORKDIR/title.md
+pandoc -o $WORKDIR/cover.html -t html $WORKDIR/cover.md
 if [ ! $? -eq 0 ]
     then
     exit 3
@@ -165,6 +165,7 @@ fi
 
 # Build the standalone HTML that is the basis for the PDF
 # Allow for a ToC depth in the yaml file and use it here. 3 is the default for pandoc.
+cd $WORKDIR
 pandoc -o $WORKDIR/$FINALNAMEROOT.html  \
        -H /data/manuscript/css/style.css \
        --standalone \
