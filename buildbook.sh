@@ -1,4 +1,4 @@
-f#!/bin/bash
+#!/bin/bash
 #
 # Notify the user we are doing something
 #
