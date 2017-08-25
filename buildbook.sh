@@ -4,7 +4,7 @@
 #
 echo " "
 echo "buildBook.sh"
-echo "Version 1.2.3"
+echo "Version 1.2.4"
 echo "By: Cal Evans <cal@calevans.com>"
 echo "License: MIT"
 echo "URL: https://blog.calevans.com"
@@ -143,6 +143,7 @@ fi
 # Run the conversions
 #
 # Make the HTML Cover
+cp $MANUSCRIPTDIR/images/$COVERGRAPHIC /tmp/$COVERGRAPHIC
 pandoc -o $WORKDIR/cover.html -t html $WORKDIR/cover.md
 if [ ! $? -eq 0 ]
     then
@@ -186,7 +187,6 @@ if [ ! $? -eq 0 ]
 fi 
 
 # Make a cover image for the EPUB based on the cover.html we just generated
-cp $MANUSCRIPTDIR/images/$COVERGRAPHIC /tmp/$COVERGRAPHIC
 
 wkhtmltoimage --height 1600 --width 1000 --quality 100 --encoding UTF-8 $WORKDIR/cover.html $WORKDIR/$FINALNAMEROOT.jpg
 if [ ! $? -eq 0 ]
