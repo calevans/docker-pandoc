@@ -109,3 +109,4 @@ docker run --rm -v %cd%:/data buildbook
 # Version History
 - 1.0.0 First Release
 - 1.1.0 Now supports the latest pandoc as well as TOCDEPTH
+- 1.2.4 Various fixes and such. Now the cover graphic thing should work. Also, ANYTHING we are modifying (toc, cover, copyright) is now looked for in the PANDOC directory.
